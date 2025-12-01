@@ -8,7 +8,7 @@ import EventDetail from './pages/EventDetail';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/website-test">
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
