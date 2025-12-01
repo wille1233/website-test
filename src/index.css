@@ -1,11 +1,22 @@
 :root {
-  --bg-color: #111111;
-  /* Slightly lighter than pure black for texture */
-  --text-color: #ffffff;
-  --accent-color: #C5A059;
-  /* Metallic Gold */
+  /* Deep Night Blue / Black base */
+  --bg-color: #050505;
+  --bg-secondary: #0a0a12;
+
+  /* Off-white for better readability */
+  --text-color: #f0f0f0;
+  --text-muted: #a0a0a0;
+
+  /* Electric Indigo / Neon Cyan Accent */
+  --accent-color: #6366f1;
+  --accent-secondary: #00f3ff;
+
+  /* Fonts */
   --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
   --font-display: 'Oswald', sans-serif;
+  /* Keeping Oswald for now, can switch if needed */
+
+  --nav-height: 80px;
 }
 
 * {
@@ -20,6 +31,7 @@ body {
   font-family: var(--font-primary);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
 }
 
 a {
@@ -44,6 +56,7 @@ a {
   align-items: center;
 }
 
+
 /* Typography */
 h1,
 h2,
@@ -51,12 +64,47 @@ h3 {
   font-family: var(--font-display);
   text-transform: uppercase;
   line-height: 0.9;
+  color: var(--text-color);
 }
 
 h1 {
   font-size: clamp(4rem, 15vw, 12rem);
   font-weight: 700;
   letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Button Styles */
+.btn {
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  font-family: var(--font-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-color);
+  border: 1px solid var(--accent-color);
+  background: transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: var(--accent-color);
+  color: var(--bg-color);
+  transform: translateY(-2px);
+}
+
+/* Section Utilities */
+.section {
+  padding: 10vh 0;
 }
 
 /* Animations */

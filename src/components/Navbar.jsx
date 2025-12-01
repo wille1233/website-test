@@ -1,121 +1,147 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import './Navbar.css';
 
 const Navbar = () => {
-    const [hidden, setHidden] = useState(false);
-    const { scrollY } = useScroll();
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
 
-    useMotionValueEvent(scrollY, "change", (latest) => {
-        const previous = scrollY.getPrevious();
-        if (latest > previous && latest > 150) {
-            setHidden(true);
+    // Handle scroll effect
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 50);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Lock body scroll when mobile menu is open
+    useEffect(() => {
+        if (mobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
         } else {
-            setHidden(false);
+            document.body.style.overflow = 'unset';
         }
-    });
+    }, [mobileMenuOpen]);
+
+    const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
+
+    const closeMobileMenu = () => setMobileMenuOpen(false);
+
+    const navLinks = [
+        { name: 'Home', path: '/' },
+        { name: 'Events', path: '/events' },
+        { name: 'Membership', path: '/membership' }
+    ];
 
     return (
-        <motion.nav
-            variants={{
-                visible: { y: 0 },
-                hidden: { y: "-100%" },
-            }}
-            animate={hidden ? "hidden" : "visible"}
-            transition={{ duration: 0.35, ease: "easeInOut" }}
-            style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: 'var(--nav-height)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '0 4vw',
-                zIndex: 100,
-                background: 'rgba(255, 255, 255, 0.85)',
-                backdropFilter: 'blur(20px)',
-                borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
-            }}
-        >
-            <Link to="/" style={{ textDecoration: 'none' }}>
-                <motion.div
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem'
-                    }}
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ duration: 0.2 }}
-                >
-                    {/* Logo/Icon */}
-
-
-                    {/* Brand Name */}
-                    <div style={{
-                        fontFamily: 'var(--font-display)',
-                        fontSize: '1.5rem',
-                        letterSpacing: '0.05em',
-                        color: '#1a1a1a',
-                        textTransform: 'uppercase'
-                    }}>
-                        Slutstation
-                    </div>
-                </motion.div>
-            </Link>
-
-            <ul style={{ display: 'flex', gap: '3rem', alignItems: 'center' }}>
-                <li>
-                    <Link to="/" style={{
-                        fontFamily: 'var(--font-body)',
-                        textTransform: 'uppercase',
-                        fontSize: '0.85rem',
-                        letterSpacing: '0.1em',
-                        fontWeight: 400,
-                        color: '#ccc'
-                    }}>
-                        Home
-                    </Link>
-                </li>
-                <li>
-                    <Link to="/events" style={{
-                        fontFamily: 'var(--font-body)',
-                        textTransform: 'uppercase',
-                        fontSize: '0.85rem',
-                        letterSpacing: '0.1em',
-                        fontWeight: 400,
-                        color: '#ccc'
-                    }}>
-                        Events
-                    </Link>
-                </li>
-                <li>
-                    <Link to="/membership">
-                        <motion.span
-                            style={{
-                                fontFamily: 'var(--font-body)',
-                                textTransform: 'uppercase',
-                                fontSize: '0.85rem',
-                                letterSpacing: '0.1em',
-                                color: 'var(--accent-color)',
-                                fontWeight: 600,
-                                padding: '0.5rem 1.5rem',
-                                border: '1px solid rgba(197, 160, 89, 0.4)',
-                                display: 'inline-block',
-                                transition: 'all 0.3s ease'
-                            }}
-                            whileHover={{
-                                borderColor: 'var(--accent-color)',
-                                backgroundColor: 'rgba(197, 160, 89, 0.1)'
-                            }}
+        <>
+            <motion.nav
+                className={`navbar ${scrolled ? 'scrolled' : ''}`}
+                initial={{ y: -100 }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            >
+                <div className="navbar-container">
+                    {/* Logo */}
+                    <Link to="/" className="navbar-logo" onClick={closeMobileMenu}>
+                        <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            transition={{ duration: 0.2 }}
                         >
-                            Join
-                        </motion.span>
+                            <span className="logo-text">SLUTSTATION</span>
+                            <span className="logo-dot">●</span>
+                        </motion.div>
                     </Link>
-                </li>
-            </ul>
-        </motion.nav>
+
+                    {/* Desktop Navigation */}
+                    <ul className="navbar-menu">
+                        {navLinks.map((link, index) => (
+                            <motion.li
+                                key={link.name}
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.1 * index, duration: 0.4 }}
+                            >
+                                <Link to={link.path} className="navbar-link">
+                                    <span className="link-text">{link.name}</span>
+                                    <span className="link-underline"></span>
+                                </Link>
+                            </motion.li>
+                        ))}
+                    </ul>
+
+                    {/* Mobile Menu Button */}
+                    <button
+                        className={`mobile-menu-button ${mobileMenuOpen ? 'open' : ''}`}
+                        onClick={toggleMobileMenu}
+                        aria-label="Toggle menu"
+                    >
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </motion.nav>
+
+            {/* Mobile Menu Overlay */}
+            <AnimatePresence>
+                {mobileMenuOpen && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            className="mobile-menu-backdrop"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={closeMobileMenu}
+                        />
+
+                        {/* Menu Content */}
+                        <motion.div
+                            className="mobile-menu"
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        >
+                            <div className="mobile-menu-content">
+                                <nav className="mobile-nav">
+                                    {navLinks.map((link, index) => (
+                                        <motion.div
+                                            key={link.name}
+                                            initial={{ opacity: 0, x: 50 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.1 + index * 0.1, duration: 0.4 }}
+                                        >
+                                            <Link
+                                                to={link.path}
+                                                className="mobile-nav-link"
+                                                onClick={closeMobileMenu}
+                                            >
+                                                <span className="mobile-link-number">0{index + 1}</span>
+                                                <span className="mobile-link-text">{link.name}</span>
+                                            </Link>
+                                        </motion.div>
+                                    ))}
+                                </nav>
+
+                                <motion.div
+                                    className="mobile-menu-footer"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.5, duration: 0.4 }}
+                                >
+                                    <p>Underground House Music</p>
+                                    <p>Stockholm • 2024</p>
+                                </motion.div>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+        </>
     );
 };
 

@@ -226,7 +226,7 @@ const Symbol = () => {
 
 const Scene = () => {
     return (
-        <div style={{ width: '100%', height: '100vh', background: '#111' }}>
+        <div style={{ width: '100%', height: '100vh', background: '#e6e1e1ff' }}>
             <Canvas>
                 <Suspense fallback={null}>
                     <PerspectiveCamera makeDefault position={[0, 0, 6]} />

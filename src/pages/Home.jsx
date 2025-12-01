@@ -32,24 +32,22 @@ const Home = () => {
                                 marginBottom: '1rem',
                                 textTransform: 'uppercase',
                                 letterSpacing: '-0.02em',
-                                lineHeight: 0.9
+                                lineHeight: 0.9,
+                                color: 'var(--text-color)'
                             }}>
-                                Upcoming<br />Rituals
+                                Upcoming<br />Events
                             </h2>
                             <p style={{
-                                fontFamily: 'var(--font-body)',
+                                fontFamily: 'var(--font-primary)',
                                 fontSize: '1rem',
-                                color: '#666',
+                                color: 'var(--text-muted)',
                                 maxWidth: '400px',
                                 lineHeight: 1.6
                             }}>
-                                Experience the sound of the underground. Each event is a journey into the depths of electronic music.
+
                             </p>
                         </div>
 
-                        <Link to="/events" className="btn">
-                            View All Events
-                        </Link>
                     </div>
 
                     <EventList />
@@ -66,8 +64,8 @@ const Home = () => {
                     style={{
                         textAlign: 'center',
                         padding: '8vh 0',
-                        borderTop: '1px solid rgba(197, 160, 89, 0.1)',
-                        borderBottom: '1px solid rgba(197, 160, 89, 0.1)'
+                        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
                     }}
                 >
                     <h2 style={{
@@ -75,14 +73,15 @@ const Home = () => {
                         fontSize: 'clamp(2rem, 5vw, 4rem)',
                         marginBottom: '2rem',
                         textTransform: 'uppercase',
-                        letterSpacing: '-0.02em'
+                        letterSpacing: '-0.02em',
+                        color: 'var(--text-color)'
                     }}>
                         Join The Circle
                     </h2>
                     <p style={{
-                        fontFamily: 'var(--font-body)',
+                        fontFamily: 'var(--font-primary)',
                         fontSize: '1.1rem',
-                        color: '#888',
+                        color: 'var(--text-muted)',
                         marginBottom: '3rem',
                         maxWidth: '600px',
                         margin: '0 auto 3rem'

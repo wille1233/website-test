@@ -13,7 +13,16 @@ const Hero = () => {
     const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
     return (
-        <div ref={ref} style={{ height: '100vh', width: '100%', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div ref={ref} style={{
+            height: '100vh',
+            width: '100%',
+            position: 'relative',
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'var(--bg-color)'
+        }}>
             <motion.div
                 style={{
                     position: 'absolute',
@@ -33,20 +42,45 @@ const Hero = () => {
                     zIndex: 1,
                     textAlign: 'center',
                     opacity,
-                    pointerEvents: 'none',
-                    mixBlendMode: 'difference'
+                    pointerEvents: 'none'
                 }}
             >
-                <p style={{
-                    fontSize: '1rem',
-                    letterSpacing: '0.3em',
-                    textTransform: 'uppercase',
-                    color: 'white',
-                    fontFamily: 'var(--font-body)',
-                    fontWeight: 300
-                }}>
-                    Events since 2022
-                </p>
+                <motion.h1
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    style={{
+                        fontSize: 'clamp(4rem, 12vw, 10rem)',
+                        fontFamily: 'var(--font-display)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '-0.02em',
+                        lineHeight: 0.9,
+                        marginBottom: '2rem',
+                        color: 'var(--text-color)'
+                    }}
+                >
+
+                </motion.h1>
+
+                <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.8, delay: 0.6 }}
+                    style={{
+                        fontSize: '1rem',
+                        letterSpacing: '0.3em',
+                        textTransform: 'uppercase',
+                        color: 'var(--text-muted)',
+                        fontFamily: 'var(--font-primary)',
+                        fontWeight: 300,
+                        display: 'flex',
+                        gap: '1rem',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}
+                >
+
+                </motion.p>
             </motion.div>
 
             <div style={{
@@ -59,7 +93,11 @@ const Hero = () => {
                 <motion.div
                     animate={{ y: [0, 10, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
-                    style={{ width: '1px', height: '60px', background: 'white' }}
+                    style={{
+                        width: '1px',
+                        height: '60px',
+                        background: 'var(--accent-color)'
+                    }}
                 />
             </div>
         </div>
