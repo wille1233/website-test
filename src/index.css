@@ -124,6 +124,17 @@ h2 {
   animation: fadeIn 1s ease-out forwards;
 }
 
+/* Layout Utilities */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+}
+
 /* Event Detail Grid */
 .event-detail-grid {
   display: grid;
