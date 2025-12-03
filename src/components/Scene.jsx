@@ -182,13 +182,13 @@ const Symbol = () => {
             <mesh>
                 <torusGeometry args={[1.8, 0.15, 16, 100]} />
                 <meshPhysicalMaterial
-                    color="#C5A059"
-                    metalness={1}
+                    color="#cfcfcfff"
+                    metalness={0.5}
                     roughness={0.1}
                     clearcoat={1}
                     clearcoatRoughness={0.1}
                     reflectivity={1}
-                    emissive="#C5A059"
+                    emissive="#cfcfcfff"
                     emissiveIntensity={0.2}
                 />
             </mesh>
@@ -197,7 +197,7 @@ const Symbol = () => {
             <group position={[0, 0, -0.15]} scale={[1.5, 1.5, 1.5]}>
                 <mesh geometry={extrudedGeometries[0]}>
                     <meshStandardMaterial
-                        color="#1a1a1a"
+                        color="#cfcfcfff"
                         roughness={0.6}
                         metalness={0.5}
                         flatShading={false}
@@ -205,7 +205,7 @@ const Symbol = () => {
                 </mesh>
                 <mesh geometry={extrudedGeometries[1]}>
                     <meshStandardMaterial
-                        color="#1a1a1a"
+                        color="#cfcfcfff"
                         roughness={0.6}
                         metalness={0.5}
                         flatShading={false}
@@ -213,7 +213,7 @@ const Symbol = () => {
                 </mesh>
                 <mesh geometry={extrudedGeometries[2]}>
                     <meshStandardMaterial
-                        color="#1a1a1a"
+                        color="#cfcfcfff"
                         roughness={0.6}
                         metalness={0.5}
                         flatShading={false}

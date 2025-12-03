@@ -5,6 +5,8 @@ import Home from './pages/Home';
 import Events from './pages/Events';
 import Membership from './pages/Membership';
 import EventDetail from './pages/EventDetail';
+import Info from './pages/Info';
+import Studio from './pages/Studio';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
         <Route path="/events" element={<Events />} />
         <Route path="/event/:eventId" element={<EventDetail />} />
         <Route path="/membership" element={<Membership />} />
+        <Route path="/info" element={<Info />} />
+        <Route path="/studio" element={<Studio />} />
       </Routes>
     </Router>
   );

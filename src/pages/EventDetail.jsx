@@ -81,7 +81,7 @@ const EventDetail = () => {
 
             {/* Content */}
             <div className="container" style={{ paddingTop: '8vh', paddingBottom: '8vh' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '6rem' }}>
+                <div className="event-detail-grid">
                     {/* Main Content */}
                     <div>
                         {/* Description */}

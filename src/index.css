@@ -123,3 +123,17 @@ h2 {
 .fade-in {
   animation: fadeIn 1s ease-out forwards;
 }
+
+/* Event Detail Grid */
+.event-detail-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 6rem;
+}
+
+@media (max-width: 768px) {
+  .event-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+}
