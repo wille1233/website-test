@@ -30,8 +30,7 @@ const Events = () => {
                         maxWidth: '600px',
                         lineHeight: 1.6
                     }}>
-                        A curated selection of underground electronic music experiences.
-                        Join us for nights that define the scene.
+
                     </p>
                 </motion.div>
 
