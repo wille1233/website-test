@@ -11,6 +11,7 @@ import About from './pages/About';
 import PosterLanding from './pages/PosterLanding';
 import Home2 from './pages/Home2';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import DJApplication from './pages/DJApplication';
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/minimal" element={<PosterLanding />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/dj-application" element={<DJApplication />} />
           </Routes>
         </main>
         <Footer />

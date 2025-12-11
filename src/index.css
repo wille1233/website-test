@@ -123,6 +123,16 @@ h2 {
   animation: fadeIn 1s ease-out forwards;
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Layout Utilities */
 .app-wrapper {
   display: flex;

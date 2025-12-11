@@ -1,11 +1,90 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { events } from '../data/events';
+import { getUpcomingEvents, getPastEvents } from '../data/events';
+
 
 const EventList = () => {
     const [hoveredId, setHoveredId] = useState(null);
+    const [upcomingEvents, setUpcomingEvents] = useState([]);
+    const [pastEvents, setPastEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
     const isMobile = window.innerWidth <= 768; // Simple check, ideally use a hook
+
+    // Fetch events on component mount
+    useEffect(() => {
+        async function loadEvents() {
+            setLoading(true);
+            try {
+                const [upcoming, past] = await Promise.all([
+                    getUpcomingEvents(),
+                    getPastEvents()
+                ]);
+                setUpcomingEvents(upcoming);
+                setPastEvents(past);
+            } catch (error) {
+                console.error('Error loading events:', error);
+                setUpcomingEvents([]);
+                setPastEvents([]);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadEvents();
+    }, []);
+
+    // Show loading state
+    if (loading) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '400px',
+                color: 'var(--text-muted)'
+            }}>
+                <div style={{
+                    textAlign: 'center',
+                    fontFamily: 'var(--font-primary)'
+                }}>
+                    <div style={{
+                        fontSize: '1.2rem',
+                        marginBottom: '1rem'
+                    }}>
+                        Loading events...
+                    </div>
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        border: '3px solid rgba(255, 107, 53, 0.2)',
+                        borderTop: '3px solid var(--accent-color)',
+                        borderRadius: '50%',
+                        margin: '0 auto',
+                        animation: 'spin 1s linear infinite'
+                    }} />
+                </div>
+            </div>
+        );
+    }
+
+    // Show message if no events at all
+    if (!upcomingEvents || upcomingEvents.length === 0 && !pastEvents || pastEvents.length === 0) {
+        return (
+            <div style={{
+                textAlign: 'center',
+                padding: '4rem 2rem',
+                color: 'var(--text-muted)'
+            }}>
+                <p style={{
+                    fontFamily: 'var(--font-primary)',
+                    fontSize: '1.2rem'
+                }}>
+                    No events available at the moment. Check back soon!
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div style={{ position: 'relative' }}>
@@ -19,10 +98,9 @@ const EventList = () => {
                 zIndex: -1,
                 opacity: hoveredId ? 0.3 : 0,
                 transition: 'opacity 0.6s ease',
-                pointerEvents: 'none',
-                display: isMobile ? 'none' : 'block'
+                pointerEvents: 'none'
             }}>
-                {events.map(event => (
+                {[...upcomingEvents, ...pastEvents].map(event => (
                     <motion.div
                         key={event.id}
                         style={{
@@ -50,119 +128,173 @@ const EventList = () => {
                 ))}
             </div>
 
-            {/* Event List / Grid */}
-            <div className="event-container" style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '2rem',
-                marginTop: '2rem'
-            }}>
-                {events.map((event, index) => (
-                    <Link
-                        key={event.id}
-                        to={`/event/${event.id}`}
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
-                            viewport={{ once: true }}
-                            onMouseEnter={() => setHoveredId(event.id)}
-                            onMouseLeave={() => setHoveredId(null)}
-                            className="event-card"
-                            style={{
-                                padding: '2rem',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                borderRadius: '12px',
-                                background: 'rgba(255, 255, 255, 0.03)',
-                                backdropFilter: 'blur(10px)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '1.5rem',
-                                height: '100%',
-                                transition: 'transform 0.3s ease, border-color 0.3s ease'
-                            }}
-                            whileHover={{
-                                y: -10,
-                                borderColor: 'var(--accent-color)',
-                                backgroundColor: 'rgba(255, 255, 255, 0.05)'
-                            }}
-                        >
-                            {/* Mobile Image (Visible only on mobile/grid view if desired, or always for cards) */}
-                            <div style={{
-                                width: '100%',
-                                height: '200px',
-                                overflow: 'hidden',
-                                borderRadius: '8px',
-                                marginBottom: '0.5rem'
-                            }}>
-                                <img
-                                    src={event.image}
-                                    alt={event.title}
-                                    style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover',
-                                        transition: 'transform 0.5s ease'
-                                    }}
-                                />
-                            </div>
+            {/* Upcoming Events Section */}
+            {upcomingEvents && upcomingEvents.length > 0 && (
+                <div style={{ marginBottom: '4rem' }}>
+                    <h2 style={{
+                        fontSize: '2.5rem',
+                        marginBottom: '2rem',
+                        color: 'var(--accent-color)',
+                        fontFamily: 'var(--font-heading)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '2px'
+                    }}>
+                        Upcoming Events
+                    </h2>
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div>
-                                    <span style={{
-                                        fontFamily: 'var(--font-body)',
-                                        fontSize: '0.9rem',
-                                        color: 'var(--accent-color)',
-                                        display: 'block',
-                                        marginBottom: '0.5rem'
-                                    }}>
-                                        {event.date}
-                                    </span>
-                                    <h3 style={{
-                                        fontFamily: 'var(--font-display)',
-                                        fontSize: '1.8rem',
-                                        lineHeight: 1.1,
-                                        marginBottom: '0.5rem'
-                                    }}>
-                                        {event.title}
-                                    </h3>
-                                    <p style={{
-                                        fontFamily: 'var(--font-body)',
-                                        fontSize: '0.9rem',
-                                        color: 'var(--text-muted)'
-                                    }}>
-                                        {event.location}
-                                    </p>
-                                </div>
+                    <div className="event-container" style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                        gap: '2rem'
+                    }}>
+                        {upcomingEvents.map((event, index) => renderEventCard(event, index))}
+                    </div>
+                </div>
+            )}
 
-                                <motion.div
-                                    style={{
-                                        width: '32px',
-                                        height: '32px',
-                                        borderRadius: '50%',
-                                        border: '1px solid var(--text-muted)',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: 'var(--text-muted)'
-                                    }}
-                                    whileHover={{
-                                        borderColor: 'var(--accent-color)',
-                                        color: 'var(--accent-color)',
-                                        rotate: -45
-                                    }}
-                                >
-                                    →
-                                </motion.div>
-                            </div>
-                        </motion.div>
-                    </Link>
-                ))}
-            </div>
+            {/* Past Events Section */}
+            {pastEvents && pastEvents.length > 0 && (
+                <div>
+                    <h2 style={{
+                        fontSize: '2.5rem',
+                        marginBottom: '2rem',
+                        marginTop: '4rem',
+                        color: 'rgba(0, 0, 0, 0.6)',
+                        fontFamily: 'var(--font-heading)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '2px'
+                    }}>
+                        Past Events
+                    </h2>
+
+                    <div className="event-container" style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                        gap: '2rem'
+                    }}>
+                        {pastEvents.map((event, index) => renderEventCard(event, index))}
+                    </div>
+                </div>
+            )}
         </div>
     );
+
+    // Helper function to render event cards
+    function renderEventCard(event, index) {
+        return (
+            <Link
+                key={event.id}
+                to={`/event/${event.id}`}
+                style={{
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    display: 'block',
+                    height: '100%'
+                }}
+            >
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    onMouseEnter={() => setHoveredId(event.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                    className="event-card"
+                    style={{
+                        padding: '2rem',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '12px',
+                        background: 'rgba(255, 255, 255, 0.03)',
+                        backdropFilter: 'blur(10px)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1rem',
+                        height: '100%', // Ensure card fills the Link/Grid cell
+                        transition: 'all 0.3s ease',
+                        cursor: 'pointer',
+                        ...(hoveredId === event.id && {
+                            transform: 'scale(1.02)',
+                            borderColor: 'var(--accent-color)',
+                            background: 'rgba(255, 107, 53, 0.05)'
+                        })
+                    }}
+                >
+                    {/* Event Image */}
+                    <div style={{
+                        width: '100%',
+                        aspectRatio: '3/4', // Poster aspect ratio
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        marginBottom: '1rem',
+                        backgroundColor: 'rgba(0,0,0,0.2)'
+                    }}>
+                        <img
+                            src={event.image}
+                            alt={event.title}
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                filter: hoveredId === event.id ? 'brightness(1.1)' : 'brightness(0.9)',
+                                transition: 'filter 0.3s ease'
+                            }}
+                        />
+                    </div>
+
+                    {/* Event Title */}
+                    <h3 style={{
+                        fontSize: '1.5rem',
+                        margin: 0,
+                        color: 'var(--text-primary)',
+                        fontFamily: 'var(--font-heading)'
+                    }}>
+                        {event.title}
+                    </h3>
+
+                    {/* Event Details - Date, Time, Location */}
+                    <div style={{
+                        marginTop: 'auto', // Push details to bottom to align with other cards
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.5rem',
+                        color: 'var(--text-muted)',
+                        fontFamily: 'var(--font-primary)'
+                    }}>
+                        {event.date && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <span style={{ fontWeight: 'bold', color: 'var(--accent-color)' }}>Date:</span>
+                                <span>{event.date}</span>
+                            </div>
+                        )}
+                        {event.time && event.time !== 'Time TBA' && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <span style={{ fontWeight: 'bold', color: 'var(--accent-color)' }}>Time:</span>
+                                <span>{event.time}</span>
+                            </div>
+                        )}
+                        {event.location && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <span style={{ fontWeight: 'bold', color: 'var(--accent-color)' }}>Location:</span>
+                                <span>{event.location}</span>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Event Price */}
+                    <div style={{
+                        paddingTop: '1rem',
+                        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                        fontSize: '1.2rem',
+                        fontWeight: 'bold',
+                        color: 'var(--accent-color)'
+                    }}>
+                        {event.price}
+                    </div>
+                </motion.div>
+            </Link>
+        );
+    }
 };
 
 export default EventList;
+
