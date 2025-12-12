@@ -22,8 +22,6 @@ const DJApplication = () => {
         e.preventDefault();
         setStatus({ loading: true, success: false, error: null });
 
-        // EmailJS Configuration
-        // NOTE: You need to create an account at https://www.emailjs.com/
         // and add these values to your .env file
         const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
         const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;

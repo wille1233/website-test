@@ -100,12 +100,19 @@ export async function fetchUpcomingEvents() {
     try {
         console.log('Fetching upcoming events from Billetto API...');
         // Fetch active/upcoming public events
-        const data = await makeRequest('/organiser/events?state=active', {
+        const data = await makeRequest('/organiser/events/1775961', {
             method: 'GET',
         });
 
-        console.log('Billetto API response (upcoming events):');
-        console.log(`Loaded ${data?.data?.length || 0} upcoming events`);
+        console.log('Billetto API raw response (upcoming events):');
+        console.log(JSON.stringify(data, null, 2));
+        console.log('Type:', typeof data);
+        console.log('Keys:', Object.keys(data));
+
+        // Handle single event response
+        if (data && data.object === 'event') {
+            return [data];
+        }
 
         // Extract the events array from the data property
         return data?.data || [];
@@ -159,7 +166,7 @@ export async function fetchBillettoEventById(eventId) {
  * @returns {string} Widget URL
  */
 export function getBillettoWidgetUrl(eventId) {
-    return `https://billetto.com/en/events/${eventId}`;
+    return `https://billetto.se/events/${eventId}`;
 }
 
 /**

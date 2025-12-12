@@ -127,8 +127,8 @@ const MembershipForm = () => {
         padding: '1rem 0',
         background: 'transparent',
         border: 'none',
-        borderBottom: '1px solid rgba(197, 160, 89, 0.2)',
-        color: 'black',
+        borderBottom: '2px solid rgba(197, 160, 89, 0.4)',
+        color: '#ffffff',
         outline: 'none',
         fontFamily: 'var(--font-body)',
         fontSize: '1rem',
@@ -401,7 +401,7 @@ const MembershipForm = () => {
                             fontFamily: 'var(--font-body)',
                             fontSize: '0.9rem',
                             lineHeight: 1.6,
-                            color: '#aaa'
+                            color: '#d0d0d0'
                         }}>
                             <input
                                 type="checkbox"

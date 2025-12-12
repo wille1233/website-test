@@ -1,19 +1,21 @@
 :root {
-  /* Clean white background - inverted design */
-  --bg-color: #ffffff;
-  --bg-secondary: #f8f8f8;
+  /* Dark gradient background */
+  --bg-color: #0a0a0a;
+  --bg-secondary: #1a1a1a;
 
-  /* Deep black text - same as reference */
-  --text-color: #0a0a0a;
-  --text-muted: #666666;
+  /* Light text for visibility on dark background */
+  --text-color: #ffffff;
+  --text-primary: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.6);
 
-  /* Orange accent instead of green */
+  /* Orange accent - gold tones */
   --accent-color: #ff6b35;
   --accent-secondary: #ff8c42;
 
   /* Fonts - Söhne for body, keep display font */
   --font-primary: 'Söhne', 'Inter', system-ui, -apple-system, sans-serif;
   --font-display: 'Oswald', sans-serif;
+  --font-heading: 'Oswald', sans-serif;
 
   --nav-height: 80px;
 }
@@ -24,13 +26,23 @@
   box-sizing: border-box;
 }
 
+html {
+  background-color: #111111;
+}
+
 body {
-  background-color: var(--bg-color);
+  background-color: #111111;
+  background-attachment: fixed;
   color: var(--text-color);
   font-family: var(--font-primary);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   line-height: 1.6;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
 }
 
 a {
@@ -87,7 +99,7 @@ h2 {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-color);
+  color: #ffffff;
   border: 1px solid var(--accent-color);
   background: transparent;
   transition: all 0.3s ease;
@@ -97,7 +109,7 @@ h2 {
 
 .btn:hover {
   background: var(--accent-color);
-  color: var(--bg-color);
+  color: #ffffff;
   transform: translateY(-2px);
 }
 

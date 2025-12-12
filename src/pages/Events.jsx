@@ -1,40 +1,60 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import EventList from '../components/EventList';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import './Events.css';
+import Scene from '../components/Scene';
 
 const Events = () => {
+    const { scrollY } = useScroll();
+    // Parallax for Hero Text
+    const yParallax = useTransform(scrollY, [0, 500], [0, 200]); // Move text down slower than scroll
+    const opacityParallax = useTransform(scrollY, [0, 400], [1, 0]); // Fade out text
+
     return (
-        <div style={{ paddingTop: '120px', minHeight: '100vh', paddingBottom: '8vh' }}>
-            <div className="container">
+        <div className="events-page">
+            {/* Hero Section - Fixed Behind */}
+            <section className="events-hero">
+                {/* Background Scene (Optional) */}
+                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, opacity: 0.8 }}>
+                    <Scene />
+                </div>
+
+                {/* Hero Content */}
                 <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                    style={{ marginBottom: '4rem' }}
+                    style={{
+                        zIndex: 1,
+                        textAlign: 'center',
+                        y: yParallax,
+                        opacity: opacityParallax,
+                        mixBlendMode: 'difference'
+                    }}
                 >
                     <h1 style={{
-                        fontFamily: 'var(--font-display)',
-                        fontSize: 'clamp(3rem, 8vw, 7rem)',
+                        color: '#ffffff',
+                        fontSize: 'clamp(4rem, 12vw, 15rem)', // Even larger for impact
+                        fontFamily: '"Oswald", sans-serif',
                         textTransform: 'uppercase',
-                        marginBottom: '1rem',
-                        letterSpacing: '-0.02em',
+                        fontWeight: '700',
                         lineHeight: 0.9,
-                        color: 'var(--text-color)'
+                        margin: 0,
+                        letterSpacing: '-0.02em',
+                        // textShadow: '0 20px 50px rgba(0,0,0,0.5)'
                     }}>
-                        All Events
+                        Events
                     </h1>
-                    <p style={{
-                        fontFamily: 'var(--font-body)',
-                        fontSize: '1.1rem',
-                        color: 'var(--text-muted)',
-                        maxWidth: '600px',
-                        lineHeight: 1.6
-                    }}>
-
-                    </p>
                 </motion.div>
+            </section>
 
-                <EventList />
+            {/* Content Section - Scrolls Over */}
+            <div className="events-content-wrapper" style={{
+                '--text-color': '#ffffff',
+                '--text-primary': '#ffffff',
+                '--text-muted': 'rgba(255, 255, 255, 0.6)',
+                '--bg-color': 'transparent'
+            }}>
+                <div className="events-content">
+                    <EventList />
+                </div>
             </div>
         </div>
     );

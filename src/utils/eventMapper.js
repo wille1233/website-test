@@ -128,6 +128,9 @@ export function mapBillettoEvent(billettoEvent, index = 0) {
         },
         lineup: [], // Billetto doesn't typically provide lineup in API, keep empty or static
         ticketLink: url || `https://billetto.com/events/${id}`,
+        // Add raw date for filtering
+        start_date: eventStartDate,
+        rawStartDate: eventStartDate
     };
 }
 
@@ -153,9 +156,16 @@ export function filterActiveEvents(events) {
     const now = new Date();
 
     return events.filter(event => {
-        // If event has a start_date field (from Billetto)
-        if (event.start_date) {
-            return new Date(event.start_date) >= now;
+        // Use rawStartDate or start_date which we set in mapBillettoEvent
+        const dateStr = event.rawStartDate || event.start_date;
+
+        if (dateStr) {
+            // Check if event is today or in future (allow events from today)
+            const eventDate = new Date(dateStr);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time part to compare dates only for today inclusion
+
+            return eventDate >= today;
         }
 
         // Otherwise just return all events

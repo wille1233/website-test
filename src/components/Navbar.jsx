@@ -10,8 +10,8 @@ const Navbar = () => {
     const location = useLocation();
 
     // Pages that should have white text (dark specific backgrounds)
-    // All other pages will default to dark text (light backgrounds)
-    const isLightPage = !['/', '/home-old'].includes(location.pathname);
+    // Since global theme is dark, we default to white text everywhere
+    const isLightPage = false; // !['/', '/home-old', '/events'].includes(location.pathname);
 
 
     // Handle scroll effect
