@@ -1,168 +1,298 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { events } from '../data/events';
+import { getUpcomingEvents, getPastEvents } from '../data/events';
+
 
 const EventList = () => {
     const [hoveredId, setHoveredId] = useState(null);
-    const isMobile = window.innerWidth <= 768; // Simple check, ideally use a hook
+    const [upcomingEvents, setUpcomingEvents] = useState([]);
+    const [pastEvents, setPastEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    // Handle window resize for responsive layout
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Fetch events on component mount
+    useEffect(() => {
+        async function loadEvents() {
+            setLoading(true);
+            try {
+                const [upcoming, past] = await Promise.all([
+                    getUpcomingEvents(),
+                    getPastEvents()
+                ]);
+                setUpcomingEvents(upcoming);
+                setPastEvents(past);
+            } catch (error) {
+                console.error('Error loading events:', error);
+                setUpcomingEvents([]);
+                setPastEvents([]);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadEvents();
+    }, []);
+
+    // Show loading state
+    if (loading) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '400px',
+                color: 'var(--text-muted)'
+            }}>
+                <div style={{
+                    textAlign: 'center',
+                    fontFamily: 'var(--font-primary)'
+                }}>
+                    <div style={{
+                        fontSize: '1.2rem',
+                        marginBottom: '1rem'
+                    }}>
+                        Loading events...
+                    </div>
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        border: '3px solid rgba(255, 107, 53, 0.2)',
+                        borderTop: '3px solid var(--accent-color)',
+                        borderRadius: '50%',
+                        margin: '0 auto',
+                        animation: 'spin 1s linear infinite'
+                    }} />
+                </div>
+            </div>
+        );
+    }
+
+    // Show message if no events at all
+    if (!upcomingEvents || upcomingEvents.length === 0 && !pastEvents || pastEvents.length === 0) {
+        return (
+            <div style={{
+                textAlign: 'center',
+                padding: '4rem 2rem',
+                color: 'var(--text-muted)'
+            }}>
+                <p style={{
+                    fontFamily: 'var(--font-primary)',
+                    fontSize: '1.2rem'
+                }}>
+                    No events available at the moment. Check back soon!
+                </p>
+            </div>
+        );
+    }
 
     return (
-        <div style={{ position: 'relative' }}>
-            {/* Background Image Display (Desktop Only) */}
-            <div className="event-bg-display" style={{
-                position: 'fixed',
-                top: 0,
-                right: 0,
-                width: '50vw',
-                height: '100vh',
-                zIndex: -1,
-                opacity: hoveredId ? 0.3 : 0,
-                transition: 'opacity 0.6s ease',
-                pointerEvents: 'none',
-                display: isMobile ? 'none' : 'block'
-            }}>
-                {events.map(event => (
-                    <motion.div
-                        key={event.id}
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            opacity: hoveredId === event.id ? 1 : 0,
-                            transition: 'opacity 0.4s ease',
-                            clipPath: 'polygon(20% 0%, 100% 0%, 100% 80%, 80% 100%, 0% 100%, 0% 20%)'
-                        }}
-                    >
+        <div style={{
+            width: '100%',
+            position: 'relative',
+        }}>
+
+            {/* Upcoming Events Section */}
+            {upcomingEvents && upcomingEvents.length > 0 && (
+                <div style={{ marginBottom: '4rem' }}>
+                    <h2 style={{
+                        fontSize: '2rem',
+                        marginBottom: '2rem',
+                        color: 'var(--text-primary)',
+                        fontFamily: 'var(--font-heading)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '4px',
+                        fontWeight: '300',
+                        borderBottom: '2px solid var(--accent-color)', // Use var
+                        paddingBottom: '1rem',
+                        // Remove gradient text for better readability on light mode or use a darker gradient
+                        background: 'none',
+                        WebkitTextFillColor: 'initial',
+                    }}>
+                        Upcoming Events
+                    </h2>
+
+                    <div className="event-container" style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1.5rem'
+                    }}>
+                        {upcomingEvents.map((event, index) => renderEventCard(event, index))}
+                    </div>
+                </div>
+            )}
+
+            {/* Past Events Section */}
+            {pastEvents && pastEvents.length > 0 && (
+                <div>
+                    <h2 style={{
+                        fontSize: '1.8rem',
+                        marginBottom: '2rem',
+                        marginTop: '4rem',
+                        color: 'var(--text-muted)',
+                        fontFamily: 'var(--font-heading)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '4px',
+                        fontWeight: '300',
+                        borderBottom: '1px solid var(--card-border, rgba(255, 255, 255, 0.1))',
+                        paddingBottom: '1rem'
+                    }}>
+                        Past Events
+                    </h2>
+
+                    <div className="event-container" style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1.5rem'
+                    }}>
+                        {pastEvents.map((event, index) => renderEventCard(event, index))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+
+    // Helper function to render event cards
+    function renderEventCard(event, index) {
+        return (
+            <Link
+                key={event.id}
+                to={`/event/${event.id}`}
+                style={{
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    display: 'block'
+                }}
+            >
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    viewport={{ once: true }}
+                    onMouseEnter={() => !isMobile && setHoveredId(event.id)}
+                    onMouseLeave={() => !isMobile && setHoveredId(null)}
+                    className="event-card"
+                    style={{
+                        display: 'flex',
+                        flexDirection: isMobile ? 'column' : 'row',
+                        alignItems: isMobile ? 'stretch' : 'center',
+                        gap: isMobile ? '1.5rem' : '2rem',
+                        padding: isMobile ? '1.5rem' : '1.5rem 2rem',
+                        border: '1px solid var(--card-border, rgba(255, 255, 255, 0.1))',
+                        borderRadius: '0px', // Sharper corners for Pacha look
+                        background: hoveredId === event.id ? 'var(--card-hover-bg, rgba(255, 255, 255, 0.05))' : 'var(--card-bg, transparent)',
+                        boxShadow: hoveredId === event.id ? 'var(--card-shadow, 0 8px 32px rgba(0, 0, 0, 0.1))' : 'none',
+                        transition: 'all 0.3s ease',
+                        cursor: 'pointer',
+                        ...(hoveredId === event.id && !isMobile && {
+                            borderColor: 'var(--accent-color)',
+                            transform: 'translateX(8px)'
+                        })
+                    }}
+                >
+                    {/* Event Image - Compact */}
+                    <div style={{
+                        width: isMobile ? '100%' : '120px',
+                        minWidth: isMobile ? 'auto' : '120px',
+                        height: isMobile ? 'auto' : '160px',
+                        aspectRatio: isMobile ? '3/4' : 'auto',
+                        maxWidth: isMobile ? '200px' : 'none',
+                        margin: isMobile ? '0 auto' : '0',
+                        borderRadius: '0px', // Sharp
+                        overflow: 'hidden',
+                        backgroundColor: 'rgba(0,0,0,0.1)',
+                    }}>
                         <img
                             src={event.image}
                             alt={event.title}
                             style={{
                                 width: '100%',
                                 height: '100%',
-                                objectFit: 'cover',
-                                filter: 'grayscale(50%) brightness(0.7)'
+                                objectFit: 'cover'
                             }}
                         />
-                    </motion.div>
-                ))}
-            </div>
+                    </div>
 
-            {/* Event List / Grid */}
-            <div className="event-container" style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '2rem',
-                marginTop: '2rem'
-            }}>
-                {events.map((event, index) => (
-                    <Link
-                        key={event.id}
-                        to={`/event/${event.id}`}
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
-                            viewport={{ once: true }}
-                            onMouseEnter={() => setHoveredId(event.id)}
-                            onMouseLeave={() => setHoveredId(null)}
-                            className="event-card"
-                            style={{
-                                padding: '2rem',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                borderRadius: '12px',
-                                background: 'rgba(255, 255, 255, 0.03)',
-                                backdropFilter: 'blur(10px)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '1.5rem',
-                                height: '100%',
-                                transition: 'transform 0.3s ease, border-color 0.3s ease'
-                            }}
-                            whileHover={{
-                                y: -10,
-                                borderColor: 'var(--accent-color)',
-                                backgroundColor: 'rgba(255, 255, 255, 0.05)'
-                            }}
-                        >
-                            {/* Mobile Image (Visible only on mobile/grid view if desired, or always for cards) */}
-                            <div style={{
-                                width: '100%',
-                                height: '200px',
-                                overflow: 'hidden',
-                                borderRadius: '8px',
-                                marginBottom: '0.5rem'
-                            }}>
-                                <img
-                                    src={event.image}
-                                    alt={event.title}
-                                    style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover',
-                                        transition: 'transform 0.5s ease'
-                                    }}
-                                />
-                            </div>
+                    {/* Event Details */}
+                    <div style={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.5rem',
+                        textAlign: isMobile ? 'center' : 'left'
+                    }}>
+                        {/* Event Title */}
+                        <h3 style={{
+                            fontSize: isMobile ? '1.3rem' : '1.8rem', // Larger title
+                            margin: 0,
+                            color: hoveredId === event.id ? 'var(--accent-color)' : 'var(--text-primary)',
+                            fontFamily: 'var(--font-heading)',
+                            fontWeight: '600',
+                            letterSpacing: '0px',
+                            transition: 'color 0.3s ease',
+                            lineHeight: '1.2',
+                            textTransform: 'uppercase'
+                        }}>
+                            {event.title}
+                        </h3>
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div>
-                                    <span style={{
-                                        fontFamily: 'var(--font-body)',
-                                        fontSize: '0.9rem',
-                                        color: 'var(--accent-color)',
-                                        display: 'block',
-                                        marginBottom: '0.5rem'
-                                    }}>
-                                        {event.date}
-                                    </span>
-                                    <h3 style={{
-                                        fontFamily: 'var(--font-display)',
-                                        fontSize: '1.8rem',
-                                        lineHeight: 1.1,
-                                        marginBottom: '0.5rem'
-                                    }}>
-                                        {event.title}
-                                    </h3>
-                                    <p style={{
-                                        fontFamily: 'var(--font-body)',
-                                        fontSize: '0.9rem',
-                                        color: 'var(--text-muted)'
-                                    }}>
-                                        {event.location}
-                                    </p>
+                        {/* Event Meta - Inline */}
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: isMobile ? 'column' : 'row',
+                            flexWrap: 'wrap',
+                            gap: isMobile ? '0.6rem' : '2rem',
+                            color: 'var(--text-muted)',
+                            fontFamily: 'var(--font-primary)',
+                            fontSize: '1rem',
+                            justifyContent: isMobile ? 'center' : 'flex-start',
+                            marginTop: '0.5rem'
+                        }}>
+                            {event.date && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: isMobile ? 'center' : 'flex-start' }}>
+                                    <span style={{ color: 'var(--accent-color)', fontWeight: '600', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>DATE</span>
+                                    <span>{event.date}</span>
                                 </div>
+                            )}
+                            {event.time && event.time !== 'Time TBA' && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: isMobile ? 'center' : 'flex-start' }}>
+                                    <span style={{ color: 'var(--accent-color)', fontWeight: '600', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>TIME</span>
+                                    <span>{event.time}</span>
+                                </div>
+                            )}
+                            {event.location && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: isMobile ? 'center' : 'flex-start' }}>
+                                    <span style={{ color: 'var(--accent-color)', fontWeight: '600', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>LOC</span>
+                                    <span>{event.location}</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
-                                <motion.div
-                                    style={{
-                                        width: '32px',
-                                        height: '32px',
-                                        borderRadius: '50%',
-                                        border: '1px solid var(--text-muted)',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: 'var(--text-muted)'
-                                    }}
-                                    whileHover={{
-                                        borderColor: 'var(--accent-color)',
-                                        color: 'var(--accent-color)',
-                                        rotate: -45
-                                    }}
-                                >
-                                    →
-                                </motion.div>
-                            </div>
-                        </motion.div>
-                    </Link>
-                ))}
-            </div>
-        </div>
-    );
+                    {/* Price - Right aligned */}
+                    <div style={{
+                        minWidth: 'fit-content',
+                        fontSize: '1.3rem',
+                        fontWeight: '700',
+                        color: 'var(--text-primary)', // Standard text color, maybe accent
+                        fontFamily: 'var(--font-heading)',
+                        textAlign: isMobile ? 'center' : 'right',
+                        letterSpacing: '0.5px'
+                    }}>
+                        {event.price}
+                    </div>
+                </motion.div>
+            </Link>
+        );
+    }
 };
 
 export default EventList;
+

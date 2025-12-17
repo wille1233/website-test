@@ -1,0 +1,113 @@
+/* Events Page Styling - Dark Glassmorphism */
+
+.events-page {
+    /* Solid grayish black background */
+    background-color: #111111;
+    /* Full screen coverage & Fixed position */
+    background-attachment: fixed;
+    /* Ensure it takes full height */
+    min-height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.events-hero {
+    height: 100vh;
+    /* Full height hero */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    /* Fixed behind content */
+    top: 0;
+    left: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.events-content-wrapper {
+    position: relative;
+    z-index: 10;
+    /* Above hero */
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-top: 80vh;
+    /* Start content below hero title to allow scroll over */
+    padding-bottom: 4rem;
+
+    /* Card Variables for Dark Glass Theme */
+    --card-border: rgba(255, 255, 255, 0.04);
+    --card-bg: rgba(20, 20, 20, 0.4);
+    --card-hover-bg: rgba(255, 255, 255, 0.05);
+    --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.events-content {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+
+    /* The Blur Effect Container */
+    border-radius: 24px 24px 0 0;
+    background: rgba(17, 17, 17, 0.85);
+    /* Dark tint */
+    backdrop-filter: blur(20px);
+    /* The Blur */
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    /* Ultra subtle border */
+    box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.3);
+    /* Softer, more diffuse shadow */
+}
+
+/* Ensure text is light */
+.events-content h2,
+.events-content h3,
+.events-content p,
+.events-content span,
+.events-content div {
+    color: #ffffff;
+}
+
+.events-content .text-muted {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.events-content .accent-text {
+    color: #ff6b35 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .events-page {
+        background-attachment: scroll;
+    }
+
+    .events-hero {
+        position: relative;
+        /* On mobile, let it scroll naturally or keep fixed? */
+        /* Fixed hero on mobile can be tricky with browser bars, let's keep it fixed but handle height carefully */
+        height: 80vh;
+        position: fixed;
+    }
+
+    .events-content-wrapper {
+        padding-top: 70vh;
+    }
+
+    .events-content {
+        padding: 2rem 1rem;
+        border-radius: 20px 20px 0 0;
+        background: rgba(17, 17, 17, 0.9);
+        /* Slightly more opaque on mobile for performance/readability */
+        backdrop-filter: blur(15px);
+    }
+}

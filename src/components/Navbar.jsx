@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Navbar.css';
 import logoImage from '../assets/images/logoslutstation3.webp';
@@ -7,6 +7,12 @@ import logoImage from '../assets/images/logoslutstation3.webp';
 const Navbar = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const location = useLocation();
+
+    // Pages that should have white text (dark specific backgrounds)
+    // Since global theme is dark, we default to white text everywhere
+    const isLightPage = false; // !['/', '/home-old', '/events'].includes(location.pathname);
+
 
     // Handle scroll effect
     useEffect(() => {
@@ -41,7 +47,7 @@ const Navbar = () => {
     return (
         <>
             <motion.nav
-                className={`navbar ${scrolled ? 'scrolled' : ''}`}
+                className={`navbar ${scrolled ? 'scrolled' : ''} ${isLightPage ? 'dark-text' : ''}`}
                 initial={{ y: -100 }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}

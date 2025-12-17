@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const MembershipForm = () => {
     const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ const MembershipForm = () => {
         acceptTerms: false
     });
     const [status, setStatus] = useState('idle');
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -29,27 +31,94 @@ const MembershipForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setStatus('loading');
+        setErrorMessage('');
+
+        // Basic validation
+        if (!formData.acceptTerms) {
+            setStatus('error');
+            setErrorMessage('You must accept the Bylaws & Personal Data Handling Policy.');
+            return;
+        }
+
+        // Map gender to ID
+        const genderMap = {
+            'female': "1",
+            'male': "2",
+            'other': "3",
+            'prefer-not-to-say': "3"
+        };
+
+        // Format Date YYYYMMDD
+        const day = formData.birthDay.padStart(2, '0');
+        const month = formData.birthMonth.padStart(2, '0');
+        const year = formData.birthYear;
+        const socialSecurityNumber = `${year}${month}${day}`;
+
+        const today = new Date().toISOString().split('T')[0];
+
+        const payload = {
+            api_key: import.meta.env.VITE_API_KEY,
+            member: {
+                firstname: formData.firstName,
+                lastname: formData.lastName,
+                gender_id: genderMap[formData.gender] || "3",
+                socialsecuritynumber: socialSecurityNumber,
+                email: formData.email,
+                phone1: formData.phone,
+                street: formData.street,
+                zip_code: formData.zip,
+                city: formData.city,
+                renewed: today,
+                subscribe_nyhetsbrev: null
+            }
+        };
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            console.log('Submitting to API:', formData);
-            setStatus('success');
-            setFormData({
-                firstName: '',
-                lastName: '',
-                gender: '',
-                birthDay: '',
-                birthMonth: '',
-                birthYear: '',
-                email: '',
-                phone: '',
-                street: '',
-                zip: '',
-                city: '',
-                acceptTerms: false
+            // Use PHP proxy endpoint (set in .env)
+            const apiEndpoint = import.meta.env.VITE_API_ENDPOINT || '/api-proxy.php';
+
+            const response = await fetch(apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
             });
+
+            const result = await response.json();
+
+            if (response.ok && result.stored_member === true) {
+                setStatus('success');
+                setFormData({
+                    firstName: '',
+                    lastName: '',
+                    gender: '',
+                    birthDay: '',
+                    birthMonth: '',
+                    birthYear: '',
+                    email: '',
+                    phone: '',
+                    street: '',
+                    zip: '',
+                    city: '',
+                    acceptTerms: false
+                });
+            } else {
+                setStatus('error');
+                let errorMsg = 'Registration failed.';
+
+                if (result.member_errors) {
+                    const errors = Object.values(result.member_errors).flat().join(', ');
+                    errorMsg = `Error: ${errors}`;
+                } else if (result.member_warnings && result.member_warnings.length > 0) {
+                    errorMsg = `Warning: ${result.member_warnings.join(', ')}`;
+                }
+
+                setErrorMessage(errorMsg);
+            }
         } catch (err) {
             setStatus('error');
+            setErrorMessage(`Network error: ${err.message}`);
         }
     };
 
@@ -58,8 +127,8 @@ const MembershipForm = () => {
         padding: '1rem 0',
         background: 'transparent',
         border: 'none',
-        borderBottom: '1px solid rgba(197, 160, 89, 0.2)',
-        color: 'white',
+        borderBottom: '2px solid rgba(197, 160, 89, 0.4)',
+        color: '#ffffff',
         outline: 'none',
         fontFamily: 'var(--font-body)',
         fontSize: '1rem',
@@ -105,16 +174,21 @@ const MembershipForm = () => {
                     </h3>
                     <p style={{
                         fontFamily: 'var(--font-body)',
-                        color: '#888',
+                        color: '#666',
                         marginBottom: '2rem'
                     }}>
-                        We will contact you shortly.
+                        You are now registered as a member of Slutstation 2025!
+                        <br />
+                        <br />
+                        Unfortunately, you won't receive a confirmation email. If you want to verify your membership, you can email <a href="mailto:info@slutstation.se" style={{ color: 'black', textDecoration: 'underline' }}>info@slutstation.se</a>
+                        <br />
+                        See you at the next event!
                     </p>
                     <button
                         onClick={() => setStatus('idle')}
                         className="btn"
                     >
-                        Send another
+                        Register another
                     </button>
                 </div>
             ) : (
@@ -170,11 +244,10 @@ const MembershipForm = () => {
                             onFocus={(e) => e.target.style.borderBottomColor = 'var(--accent-color)'}
                             onBlur={(e) => e.target.style.borderBottomColor = 'rgba(197, 160, 89, 0.2)'}
                         >
-                            <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                            <option value="prefer-not-to-say">Prefer not to say</option>
+                            <option value="" style={{ color: 'black' }}>Select Gender</option>
+                            <option value="male" style={{ color: 'black' }}>Male</option>
+                            <option value="female" style={{ color: 'black' }}>Female</option>
+                            <option value="other" style={{ color: 'black' }}>Other / Prefer not to say</option>
                         </select>
                     </div>
 
@@ -213,19 +286,19 @@ const MembershipForm = () => {
                                 onFocus={(e) => e.target.style.borderBottomColor = 'var(--accent-color)'}
                                 onBlur={(e) => e.target.style.borderBottomColor = 'rgba(197, 160, 89, 0.2)'}
                             >
-                                <option value="">Month</option>
-                                <option value="01">January</option>
-                                <option value="02">February</option>
-                                <option value="03">March</option>
-                                <option value="04">April</option>
-                                <option value="05">May</option>
-                                <option value="06">June</option>
-                                <option value="07">July</option>
-                                <option value="08">August</option>
-                                <option value="09">September</option>
-                                <option value="10">October</option>
-                                <option value="11">November</option>
-                                <option value="12">December</option>
+                                <option value="" style={{ color: 'black' }}>Month</option>
+                                <option value="01" style={{ color: 'black' }}>January</option>
+                                <option value="02" style={{ color: 'black' }}>February</option>
+                                <option value="03" style={{ color: 'black' }}>March</option>
+                                <option value="04" style={{ color: 'black' }}>April</option>
+                                <option value="05" style={{ color: 'black' }}>May</option>
+                                <option value="06" style={{ color: 'black' }}>June</option>
+                                <option value="07" style={{ color: 'black' }}>July</option>
+                                <option value="08" style={{ color: 'black' }}>August</option>
+                                <option value="09" style={{ color: 'black' }}>September</option>
+                                <option value="10" style={{ color: 'black' }}>October</option>
+                                <option value="11" style={{ color: 'black' }}>November</option>
+                                <option value="12" style={{ color: 'black' }}>December</option>
                             </select>
                             <input
                                 type="number"
@@ -288,6 +361,7 @@ const MembershipForm = () => {
                         />
                     </div>
 
+                    {/* Zip & City */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
                         <div>
                             <label style={labelStyle}>Zip Code *</label>
@@ -327,7 +401,7 @@ const MembershipForm = () => {
                             fontFamily: 'var(--font-body)',
                             fontSize: '0.9rem',
                             lineHeight: 1.6,
-                            color: '#aaa'
+                            color: '#d0d0d0'
                         }}>
                             <input
                                 type="checkbox"
@@ -344,7 +418,7 @@ const MembershipForm = () => {
                                 }}
                             />
                             <span>
-                                I accept the Bylaws & Personal Data Handling Policy *
+                                I accept the <Link to="/privacy-policy" target="_blank" style={{ color: 'var(--accent-color)' }}>Bylaws & Personal Data Handling Policy</Link> *
                             </span>
                         </label>
                     </div>
@@ -367,9 +441,13 @@ const MembershipForm = () => {
                         <p style={{
                             color: '#f44336',
                             fontSize: '0.9rem',
-                            fontFamily: 'var(--font-body)'
+                            fontFamily: 'var(--font-body)',
+                            marginTop: '1rem',
+                            padding: '1rem',
+                            borderLeft: '2px solid #f44336',
+                            background: 'rgba(244, 67, 54, 0.05)'
                         }}>
-                            Something went wrong. Please try again.
+                            {errorMessage}
                         </p>
                     )}
                 </form>

@@ -1,11 +1,55 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getEventById } from '../data/events';
 
 const EventDetail = () => {
     const { eventId } = useParams();
-    const event = getEventById(eventId);
+    const [event, setEvent] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function loadEvent() {
+            setLoading(true);
+            try {
+                const fetchedEvent = await getEventById(eventId);
+                setEvent(fetchedEvent);
+            } catch (error) {
+                console.error('Error loading event:', error);
+                setEvent(null);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadEvent();
+    }, [eventId]);
+
+    if (loading) {
+        return (
+            <div style={{ paddingTop: '120px', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="container" style={{ textAlign: 'center' }}>
+                    <div style={{
+                        fontSize: '1.2rem',
+                        marginBottom: '1rem',
+                        color: 'var(--text-muted)'
+                    }}>
+                        Loading event...
+                    </div>
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        border: '3px solid rgba(255, 107, 53, 0.2)',
+                        borderTop: '3px solid var(--accent-color)',
+                        borderRadius: '50%',
+                        margin: '0 auto',
+                        animation: 'spin 1s linear infinite'
+                    }} />
+                </div>
+            </div>
+        );
+    }
+
 
     if (!event) {
         return (
